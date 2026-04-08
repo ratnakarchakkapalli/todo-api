@@ -1,6 +1,6 @@
 const request = require('supertest');
 const app = require('../src/index');
-const { getTodos, addTodo } = require('../src/todos');
+const { addTodo } = require('../src/todos');
 
 describe('Todo API', () => {
   
