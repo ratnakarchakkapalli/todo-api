@@ -2,7 +2,8 @@
 const todos = [
   { id: 1, title: 'Learn CI/CD', completed: false },
   { id: 2, title: 'Build a project', completed: false },
-  { id: 3, title: 'Deploy to production', completed: false }
+  { id: 3, title: 'Deploy to production', completed: false },
+  { id: 4, title: 'Master Docker & Kubernetes', completed: false }
 ];
 
 const getTodos = () => {
