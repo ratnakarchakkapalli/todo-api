@@ -17,8 +17,6 @@ pipeline {
     environment {
         // Docker credentials (configure these in Jenkins)
         DOCKER_REGISTRY = "docker.io"
-        // DOCKERHUB_USERNAME should be set as Jenkins credentials or environment variable
-        // For now, using placeholder - configure in Jenkins job
         NODE_ENV = "production"
         CI = "true"
     }
@@ -89,13 +87,20 @@ pipeline {
                 script {
                     echo "🐳 Building Docker image..."
                 }
-                sh '''
-                    docker build \
-                      -t todo-api:latest \
-                      -t todo-api:${BUILD_NUMBER} \
-                      -t todo-api:${GIT_COMMIT:0:7} \
-                      .
-                '''
+                withCredentials([usernamePassword(
+                    credentialsId: 'dockerhub-credentials',
+                    usernameVariable: 'DOCKER_USER',
+                    passwordVariable: 'DOCKER_PASS'
+                )]) {
+                    sh '''
+                        DOCKER_IMAGE="${DOCKER_USER}/todo-api"
+                        docker build \
+                          -t ${DOCKER_IMAGE}:latest \
+                          -t ${DOCKER_IMAGE}:${BUILD_NUMBER} \
+                          -t ${DOCKER_IMAGE}:${GIT_COMMIT:0:7} \
+                          .
+                    '''
+                }
             }
         }
         
@@ -114,10 +119,11 @@ pipeline {
                     passwordVariable: 'DOCKER_PASS'
                 )]) {
                     sh '''
+                        DOCKER_IMAGE="${DOCKER_USER}/todo-api"
                         echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
-                        docker push todo-api:latest
-                        docker push todo-api:${BUILD_NUMBER}
-                        docker push todo-api:${GIT_COMMIT:0:7}
+                        docker push ${DOCKER_IMAGE}:latest
+                        docker push ${DOCKER_IMAGE}:${BUILD_NUMBER}
+                        docker push ${DOCKER_IMAGE}:${GIT_COMMIT:0:7}
                         docker logout
                     '''
                 }
@@ -133,14 +139,21 @@ pipeline {
                 script {
                     echo "🚀 Deploying to staging environment..."
                 }
-                sh '''
-                    echo "Staging Deployment"
-                    echo "Image: todo-api:${BUILD_NUMBER}"
-                    echo "Commit: ${GIT_COMMIT}"
-                    echo "Build Number: ${BUILD_NUMBER}"
-                    # In real scenario, trigger Render deploy hook or kubectl apply
-                    # curl -X POST https://api.render.com/deploy/staging-todo-api-hook
-                '''
+                withCredentials([usernamePassword(
+                    credentialsId: 'dockerhub-credentials',
+                    usernameVariable: 'DOCKER_USER',
+                    passwordVariable: 'DOCKER_PASS'
+                )]) {
+                    sh '''
+                        DOCKER_IMAGE="${DOCKER_USER}/todo-api"
+                        echo "Staging Deployment"
+                        echo "Image: ${DOCKER_IMAGE}:${BUILD_NUMBER}"
+                        echo "Commit: ${GIT_COMMIT}"
+                        echo "Build Number: ${BUILD_NUMBER}"
+                        # In real scenario, trigger Render deploy hook or kubectl apply
+                        # curl -X POST https://api.render.com/deploy/staging-todo-api-hook
+                    '''
+                }
             }
         }
         
@@ -187,13 +200,20 @@ pipeline {
                 script {
                     echo "🚀 Deploying to production environment..."
                 }
-                sh '''
-                    echo "Production Deployment"
-                    echo "Image: todo-api:${BUILD_NUMBER}"
-                    echo "Version: ${GIT_COMMIT}"
-                    # In real scenario, trigger Render production deploy
-                    # curl -X POST https://api.render.com/deploy/todo-api-prod-hook
-                '''
+                withCredentials([usernamePassword(
+                    credentialsId: 'dockerhub-credentials',
+                    usernameVariable: 'DOCKER_USER',
+                    passwordVariable: 'DOCKER_PASS'
+                )]) {
+                    sh '''
+                        DOCKER_IMAGE="${DOCKER_USER}/todo-api"
+                        echo "Production Deployment"
+                        echo "Image: ${DOCKER_IMAGE}:${BUILD_NUMBER}"
+                        echo "Version: ${GIT_COMMIT}"
+                        # In real scenario, trigger Render production deploy
+                        # curl -X POST https://api.render.com/deploy/todo-api-prod-hook
+                    '''
+                }
             }
         }
         
