@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  # ==================== Jenkins Master ====================
+  jenkins:
+    image: jenkins/jenkins:lts
+    container_name: jenkins-server
+    ports:
+      - "8080:8080"      # Web UI
+      - "50000:50000"    # Agent communication
+    environment:
+      JENKINS_OPTS: "--argumentsRealm.passwd.admin=admin --argumentsRealm.roles.admin=admin"
+      JAVA_OPTS: "-Xmx1024m -Xms512m"
+    volumes:
+      # Persist Jenkins data (important!)
+      - jenkins_home:/var/jenkins_home
+      # Mount Docker socket so Jenkins can run Docker commands
+      - /var/run/docker.sock:/var/run/docker.sock
+      # Mount Docker CLI
+      - /usr/bin/docker:/usr/bin/docker
+    networks:
+      - jenkins-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/login"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ==================== Docker DinD (Docker-in-Docker) ====================
+  # Optional: If you want Jenkins to run Docker more securely
+  # You can use this instead of mounting the host Docker socket
+  # dind:
+  #   image: docker:dind
+  #   container_name: jenkins-docker
+  #   privileged: true
+  #   networks:
+  #     - jenkins-network
+  #   environment:
+  #     DOCKER_TLS_CERTDIR: ""
+  #   volumes:
+  #     - jenkins_docker:/var/lib/docker
+
+volumes:
+  jenkins_home:
+    driver: local
+  # jenkins_docker:
+  #   driver: local
+
+networks:
+  jenkins-network:
+    driver: bridge
