@@ -17,7 +17,8 @@ pipeline {
     environment {
         // Docker credentials (configure these in Jenkins)
         DOCKER_REGISTRY = "docker.io"
-        DOCKER_IMAGE = "docker.io/${DOCKERHUB_USERNAME}/todo-api"
+        // DOCKERHUB_USERNAME should be set as Jenkins credentials or environment variable
+        // For now, using placeholder - configure in Jenkins job
         NODE_ENV = "production"
         CI = "true"
     }
@@ -90,9 +91,9 @@ pipeline {
                 }
                 sh '''
                     docker build \
-                      -t ${DOCKER_IMAGE}:latest \
-                      -t ${DOCKER_IMAGE}:${BUILD_NUMBER} \
-                      -t ${DOCKER_IMAGE}:${GIT_COMMIT:0:7} \
+                      -t todo-api:latest \
+                      -t todo-api:${BUILD_NUMBER} \
+                      -t todo-api:${GIT_COMMIT:0:7} \
                       .
                 '''
             }
@@ -114,9 +115,9 @@ pipeline {
                 )]) {
                     sh '''
                         echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
-                        docker push ${DOCKER_IMAGE}:latest
-                        docker push ${DOCKER_IMAGE}:${BUILD_NUMBER}
-                        docker push ${DOCKER_IMAGE}:${GIT_COMMIT:0:7}
+                        docker push todo-api:latest
+                        docker push todo-api:${BUILD_NUMBER}
+                        docker push todo-api:${GIT_COMMIT:0:7}
                         docker logout
                     '''
                 }
@@ -134,7 +135,7 @@ pipeline {
                 }
                 sh '''
                     echo "Staging Deployment"
-                    echo "Image: ${DOCKER_IMAGE}:${BUILD_NUMBER}"
+                    echo "Image: todo-api:${BUILD_NUMBER}"
                     echo "Commit: ${GIT_COMMIT}"
                     echo "Build Number: ${BUILD_NUMBER}"
                     # In real scenario, trigger Render deploy hook or kubectl apply
@@ -188,7 +189,7 @@ pipeline {
                 }
                 sh '''
                     echo "Production Deployment"
-                    echo "Image: ${DOCKER_IMAGE}:${BUILD_NUMBER}"
+                    echo "Image: todo-api:${BUILD_NUMBER}"
                     echo "Version: ${GIT_COMMIT}"
                     # In real scenario, trigger Render production deploy
                     # curl -X POST https://api.render.com/deploy/todo-api-prod-hook
