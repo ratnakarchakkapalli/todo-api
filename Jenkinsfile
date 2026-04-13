@@ -61,7 +61,9 @@ pipeline {
                 script {
                     echo "🔍 Running ESLint..."
                 }
-                sh 'npx eslint src/ tests/'
+                sh '''
+                    ./node_modules/.bin/eslint src/ tests/
+                '''
             }
         }
         
@@ -71,7 +73,9 @@ pipeline {
                 script {
                     echo "🧪 Running Jest tests with coverage..."
                 }
-                sh 'npx jest --coverage'
+                sh '''
+                    ./node_modules/.bin/jest --runInBand --coverage
+                '''
                 
                 // Publish test results
                 junit testResults: '**/coverage/**/*.xml', allowEmptyResults: true
