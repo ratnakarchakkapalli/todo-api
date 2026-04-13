@@ -62,6 +62,7 @@ pipeline {
                     echo "🔍 Running ESLint..."
                 }
                 sh '''
+                    cd ${WORKSPACE}
                     ./node_modules/.bin/eslint src/ tests/
                 '''
             }
@@ -74,6 +75,7 @@ pipeline {
                     echo "🧪 Running Jest tests with coverage..."
                 }
                 sh '''
+                    cd ${WORKSPACE}
                     ./node_modules/.bin/jest --runInBand --coverage
                 '''
                 
