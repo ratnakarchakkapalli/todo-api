@@ -19,8 +19,6 @@ pipeline {
         DOCKER_REGISTRY = "docker.io"
         NODE_ENV = "production"
         CI = "true"
-        // Ensure npm local binaries are in PATH first
-        PATH = "${WORKSPACE}/node_modules/.bin:${PATH}"
     }
     
     stages {
@@ -63,7 +61,10 @@ pipeline {
                 script {
                     echo "🔍 Running ESLint..."
                 }
-                sh 'npm run lint'
+                sh '''
+                    export PATH="${WORKSPACE}/node_modules/.bin:${PATH}"
+                    npm run lint
+                '''
             }
         }
         
@@ -73,7 +74,10 @@ pipeline {
                 script {
                     echo "🧪 Running Jest tests with coverage..."
                 }
-                sh 'npm test'
+                sh '''
+                    export PATH="${WORKSPACE}/node_modules/.bin:${PATH}"
+                    npm test
+                '''
                 
                 // Publish test results
                 junit testResults: '**/coverage/**/*.xml', allowEmptyResults: true
