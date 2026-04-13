@@ -19,6 +19,8 @@ pipeline {
         DOCKER_REGISTRY = "docker.io"
         NODE_ENV = "production"
         CI = "true"
+        // Ensure npm local binaries are in PATH first
+        PATH = "${WORKSPACE}/node_modules/.bin:${PATH}"
     }
     
     stages {
@@ -61,7 +63,7 @@ pipeline {
                 script {
                     echo "🔍 Running ESLint..."
                 }
-                sh 'npm run lint || true'
+                sh 'npm run lint'
             }
         }
         
