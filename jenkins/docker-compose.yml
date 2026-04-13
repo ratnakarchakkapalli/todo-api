@@ -3,7 +3,8 @@ version: '3.8'
 services:
   # ==================== Jenkins Master ====================
   jenkins:
-    image: jenkins/jenkins:lts
+    build: .
+    image: jenkins-with-nodejs:latest
     container_name: jenkins-server
     ports:
       - "8080:8080"      # Web UI
