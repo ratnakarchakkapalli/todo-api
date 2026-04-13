@@ -61,9 +61,7 @@ pipeline {
                 script {
                     echo "🔍 Running ESLint..."
                 }
-                sh '''
-                    ${WORKSPACE}/node_modules/.bin/eslint src/ tests/
-                '''
+                sh 'cd ${WORKSPACE} && npm run lint'
             }
         }
         
@@ -73,9 +71,7 @@ pipeline {
                 script {
                     echo "🧪 Running Jest tests with coverage..."
                 }
-                sh '''
-                    ${WORKSPACE}/node_modules/.bin/jest --runInBand --coverage
-                '''
+                sh 'cd ${WORKSPACE} && npm test'
                 
                 // Publish test results
                 junit testResults: '**/coverage/**/*.xml', allowEmptyResults: true
