@@ -14,6 +14,10 @@ RUN apt-get update && \
 # Install Node.js and npm
 RUN apt-get update && \
     apt-get install -y \
+    curl \
+    git \
+    build-essential \
+    python3 \
     nodejs \
     npm \
     && rm -rf /var/lib/apt/lists/*

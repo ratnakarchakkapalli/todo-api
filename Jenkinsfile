@@ -71,7 +71,7 @@ pipeline {
                 script {
                     echo "🧪 Running Jest tests with coverage..."
                 }
-                sh 'cd ${WORKSPACE} && npm test'
+                sh 'cd ${WORKSPACE} && npm run test'
                 
                 // Publish test results
                 junit testResults: '**/coverage/**/*.xml', allowEmptyResults: true
